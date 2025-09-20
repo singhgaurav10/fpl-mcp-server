@@ -1,4 +1,4 @@
-package com.gauravs.fpl_mcp_server.service;
+package com.gauravs.fpl_mcp_server.util;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,6 +19,7 @@ public class HttpClientService {
     
     public HttpClientService() {
         this.httpClient = HttpClient.newBuilder()
+            .followRedirects(HttpClient.Redirect.ALWAYS) 
             .connectTimeout(Duration.ofSeconds(10))
             .build();
         this.objectMapper = new ObjectMapper();
