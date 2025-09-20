@@ -1,4 +1,4 @@
-package com.gauravs.fpl_mcp_server.service;
+package com.gauravs.fpl_mcp_server.util;
 
 import java.net.URI;
 import java.net.http.HttpClient;

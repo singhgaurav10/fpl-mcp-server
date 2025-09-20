@@ -7,6 +7,7 @@ public class FantasyConstants {
     public static final String FPL_PLAYERS_URL = FPL_API_BASE_URL + "elements/";
     public static final String FPL_TEAMS_URL = FPL_API_BASE_URL + "teams/";
     public static final String FPL_GAMEWEEKS_URL = FPL_API_BASE_URL + "events/";
+    public static final String FPL_PLAYERS_SUMMARY_URL = FPL_API_BASE_URL + "element-summary/";
 
     public static final String FPL_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36";
     public static final String FPL_LOGIN_URL = "https://users.premierleague.com/accounts/login/";
