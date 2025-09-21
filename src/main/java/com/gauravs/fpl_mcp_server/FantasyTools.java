@@ -1,77 +1,144 @@
 package com.gauravs.fpl_mcp_server;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.gauravs.fpl_mcp_server.service.Fixtures;
+import com.gauravs.fpl_mcp_server.service.Gameweeks;
+import com.gauravs.fpl_mcp_server.service.Players;
+import com.gauravs.fpl_mcp_server.service.Teams;
 
 @Service
 public class FantasyTools {
 
+    @Autowired
+    private Fixtures fixtures;
+
+    @Autowired
+    private Gameweeks gameweeks;
+
+    @Autowired
+    private Teams teams;
+
+    @Autowired
+    private Players players;
+
     @Tool(name = "get_all_players", description = "Get a formatted list of all players with comprehensive statistics")
-    public String getAllPlayers() {
-        // Logic to fetch and return all players
-        return "List of all players";
+    public List<Map<String,Object>> getAllPlayers() {
+        return players.getPlayersResource(null, null);
     }
 
     @Tool(name = "get_player_by_name", description = "Get player information by searching for their name")
-    public String getPlayerByName(String name) {
-        // Logic to fetch and return player by name
-        return "Details of player: " + name;
+    public Map<String, Object> getPlayerByName(String name) {
+        List<Map<String, Object>> response = players.findPlayersByName(name, 5);
+        return response.isEmpty() ? Map.of("message", "No player found with name: " + name) : response.get(0);
     }
 
     @Tool(name = "get_all_teams", description = "Get a formatted list of all Premier League teams with strength ratings")
-    public String getAllTeams() {
-        // Logic to fetch and return all teams
-        return "List of all teams";
+    public List<Map<String, Object>> getAllTeams() {
+        try {
+            return teams.getTeamsResource();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of(Map.of("error", "Failed to fetch teams: " + e.getMessage()));
+        }
     }
 
     @Tool(name = "get_team_by_name", description = "Get team information by searching for their name")
     public String getTeamByName(String name) {
-        // Logic to fetch and return team by name
-        return "Details of team: " + name;
+        try {
+            Map<String, Object> response = teams.getTeamByName(name);
+            return response != null ? response.toString() : "No team found with name: " + name;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error fetching team: " + e.getMessage();
+        }
     }
 
     @Tool(name = "get_current_gameweek", description = "Get information about the current gameweek")
-    public String getCurrentGameweek() {
-        // Logic to fetch and return current gameweek
-        return "Current gameweek details";
+    public Map<String, Object> getCurrentGameweek() {
+        return gameweeks.getCurrentGameweekResource();
     }
 
     @Tool(name = "get_all_fixtures", description = "Get all fixtures for the current Premier League season")
-    public String getAllFixtures() {
-        // Logic to fetch and return all fixtures
-        return "List of all fixtures";
+    public List<Map<String, Object>> getAllFixtures() {
+        try {
+            return fixtures.getFixturesResource(null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of(Map.of("error", "Failed to fetch fixtures: " + e.getMessage()));
+        }
     }
 
     @Tool(name = "get_gameweek_fixtures", description = "Get fixtures for a specific gameweek")
-    public String getGameweekFixtures(int gameweek) {
-        // Logic to fetch and return fixtures for a specific gameweek
-        return "Fixtures for gameweek: " + gameweek;
+    public List<Map<String, Object>> getGameweekFixtures(int gameweek) {
+        try {
+            return fixtures.getFixturesResource(gameweek, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of(Map.of("error", "Failed to fetch fixtures: " + e.getMessage()));
+        }
     }
 
     @Tool(name = "get_team_fixtures", description = "Get fixtures for a specific team")
-    public String getTeamFixtures(String teamName) {
-        // Logic to fetch and return fixtures for a specific team
-        return "Fixtures for team: " + teamName;    
+    public List<Map<String, Object>> getTeamFixtures(String teamName) {
+        try {
+            return fixtures.getFixturesResource(null, teamName);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of(Map.of("error", "Failed to fetch fixtures: " + e.getMessage()));
+        }
     }
 
     @Tool(name = "get_player_fixtures_by_name", description = "Get upcoming fixtures for a specific player")
-    public String getPlayerFixturesByName(String playerName) {
-        // Logic to fetch and return fixtures for a specific player
-        return "Upcoming fixtures for player: " + playerName;
+    public Map<String, Object> getPlayerFixturesByName(String playerName) {
+        try {
+            List<Map<String, Object>> playerMatches = players.findPlayersByName(playerName, 5);
+            if (playerMatches == null || playerMatches.isEmpty()) {
+                return Map.of("error", "Failed to fetch player fixtures");
+            }   
+            Map<String, Object> player = playerMatches.get(0);
+            List<Map<String, Object>> playerFixture = fixtures.getPlayerFixtures( (int) player.get("id"));
+            
+            Map<String, Object> playerInfo = new HashMap<>();
+            playerInfo.put("name", player.getOrDefault("name", ""));
+            playerInfo.put("team", player.getOrDefault("team", ""));
+            playerInfo.put("position", player.getOrDefault("position", ""));
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("player", playerInfo);
+            response.put("fixtures", playerFixture);
+
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Map.of("error", "Failed to fetch player fixtures: " + e.getMessage());
+        }
     }
 
     @Tool(name = "get_blank_gameweeks_resource", description = "Get information about upcoming blank gameweeks")
-    public String getBlankGameweeksResource() {
-        // Logic to fetch and return blank gameweeks information
-        return "Information about upcoming blank gameweeks";
+    public List<Map<String, Object>> getBlankGameweeksResource() {
+        try {
+            return fixtures.getBlankGameweeks();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of(Map.of("error", "Failed to fetch blank gameweeks: " + e.getMessage()));
+        }
     }
 
     @Tool(name = "get_double_gameweeks_resource", description = "Get information about upcoming double gameweeks")
-    public String getDoubleGameweeksResource() {
-        // Logic to fetch and return double gameweeks information
-        return "Information about upcoming double gameweeks";
+    public List<Map<String, Object>> getDoubleGameweeksResource() {
+        try {
+            return fixtures.getDoubleGameweeks();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of(Map.of("error", "Failed to fetch double gameweeks: " + e.getMessage()));
+        }
     }
 
     @Tool(name = "check_fpl_authentication", description = "Check if the provided FPL authentication is valid. Returns: Authentication status and basic team information")
@@ -121,7 +188,4 @@ public class FantasyTools {
         // Logic to compare and return player comparisons
         return "Comparison of players: " + playerNames;
     }
-
-
-
 }
