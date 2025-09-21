@@ -4,14 +4,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.gauravs.fpl_mcp_server.api.FantasyApi;
+import com.gauravs.fpl_mcp_server.service.Fixtures;
 
 public class Runner {
     public static void main(String[] args) throws Exception {
-        FantasyApi api = new FantasyApi();
-        JsonNode response = api.getTeams();
-        String jsonResponse = response.toString();
+        Fixtures service = new Fixtures();
+        //Players service = new Players();
+        //Teams service = new Teams();
+        String ps = service.getTeamNameById(20);
+        String jsonResponse = new com.fasterxml.jackson.databind.ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(ps);
         Path filePath = Path.of("Response.json");
         Files.writeString(filePath, jsonResponse, StandardCharsets.UTF_8);
     }

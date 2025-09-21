@@ -4,12 +4,15 @@ import static com.gauravs.fpl_mcp_server.util.FantasyConstants.FPL_BOOTSTRAP_STA
 import static com.gauravs.fpl_mcp_server.util.FantasyConstants.FPL_FIXTURES_URL;
 import static com.gauravs.fpl_mcp_server.util.FantasyConstants.FPL_PLAYERS_SUMMARY_URL;
 
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gauravs.fpl_mcp_server.util.HttpClientService;
 
+@Service
 public class FantasyApi {
     
     public JsonNode getBootstrapStatic() throws Exception {
